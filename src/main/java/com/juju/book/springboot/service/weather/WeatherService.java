@@ -1,4 +1,4 @@
-package com.juju.book.springboot.service.posts;
+package com.juju.book.springboot.service.weather;
 
 import com.juju.book.springboot.domain.weather.Weather;
 import lombok.RequiredArgsConstructor;

@@ -1,6 +1,6 @@
 package com.juju.book.springboot.web;
 
-import com.juju.book.springboot.service.posts.WeatherService;
+import com.juju.book.springboot.service.weather.WeatherService;
 import lombok.RequiredArgsConstructor;
 import org.json.simple.parser.ParseException;
 import org.springframework.stereotype.Controller;
