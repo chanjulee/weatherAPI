@@ -1,0 +1,31 @@
+{{>layout/header}}
+
+<h4>날씨 api</h4>
+<h6>용인시 기흥구의 오늘과 내일 날씨를 조회합니다.</h6>
+<div class="col-md-12">
+    <!-- 목록 출력 영역 -->
+    <table class="table table-horizontal table-bordered">
+        <thead class="thead-strong">
+        <tr>
+            <th>날짜</th>
+            <th>시간</th>
+            <th>강수확률</th>
+            <th>하늘상태</th>
+            <th>기온</th>
+        </tr>
+        </thead>
+        <tbody id="tbody">
+        {{#weathers}}
+            <tr>
+                <td>{{date}}</td>
+                <td>{{time}}</td>
+                <td>{{pop}}</td>
+                <td>{{sky}}</td>
+                <td>{{t3h}}</td>
+            </tr>
+        {{/weathers}}
+        </tbody>
+    </table>
+</div>
+
+{{>layout/footer}}

@@ -30,5 +30,9 @@ dependencies { //의존성 선언. 버전 명시x.
     compile('org.projectlombok:lombok')
     compile('org.springframework.boot:spring-boot-starter-data-jpa')
     compile('com.h2database:h2')
+    compile('org.springframework.boot:spring-boot-starter-mustache')
+
+    compile files('libs/json-simple-1.1.1.jar')
+
     testCompile('org.springframework.boot:spring-boot-starter-test')
 }
