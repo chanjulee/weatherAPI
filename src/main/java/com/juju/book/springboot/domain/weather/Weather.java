@@ -1,6 +1,5 @@
 package com.juju.book.springboot.domain.weather;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -23,5 +22,8 @@ public class Weather {
     String pop;//강수확률
     String sky;//하늘상태
     String t3h;//기온
+
+    String tmn;//최저기온
+    String tmx;//최저기온
 
 }

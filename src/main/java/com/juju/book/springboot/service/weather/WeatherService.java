@@ -24,25 +24,27 @@ import java.util.List;
 @Service
 public class WeatherService {
 
-    public List<Weather> getWeather() throws IOException, ParseException {
+    public List<Weather> getWeather(int x, int y) throws IOException, ParseException {
 
+/*
+        오늘 날짜 받아오기
+*/
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DATE, -1); //어제 날짜 기준
         DateFormat sdFormat = new SimpleDateFormat("yyyyMMdd");
         String tempDate = sdFormat.format(cal.getTime());
-        String tempTime = "2300"; // API 제공 시간을 입력하면 됨
-        //전날 23시 부터 조회 하면 오늘과 내일의 날씨 알 수 있음!
+        String tempTime = "2359"; //전날 23시 부터 조회 하면 오늘과 내일의 날씨 알 수 있음!
 
-        // JSON데이터를 요청하는 URLstr을 만듭니다.
+/*
+        JSON데이터를 요청하는 URLstr을 만들기
+*/
         String apiUrl = "http://apis.data.go.kr/1360000/VilageFcstInfoService/getVilageFcst";
         String serviceKey = "KOLCxiL+ohja+r8cBbT6I3nUIAKGQItSQ/8awh5oyOwXUFDYUB9vlHZWLGLORbZrjQwzNV2VKoqCkRGZs28IIg==";
         String pageNo = "1";
         String numOfRows = "250"; // 한 페이지 결과 수
-        String data_type = "JSON"; // 타입 xml, json 등등 ..
-
-        //용인시 기흥구 기준
-        String nx = "62"; // 위도
-        String ny = "120"; // 경도
+        String data_type = "JSON"; // 타입 xml, json 등등 ...
+        String nx = Integer.toString(x); // 위도
+        String ny = Integer.toString(y); // 경도
 
         StringBuilder urlBuilder = new StringBuilder(apiUrl); /*URL*/
         urlBuilder.append("?" + URLEncoder.encode("serviceKey","UTF-8") + "=" + URLEncoder.encode(serviceKey, "UTF-8")); /*Service Key*/
@@ -51,12 +53,14 @@ public class WeatherService {
         urlBuilder.append("&" + URLEncoder.encode("dataType","UTF-8") + "=" + URLEncoder.encode(data_type, "UTF-8")); /*JSON*/
         urlBuilder.append("&" + URLEncoder.encode("base_date","UTF-8") + "=" + URLEncoder.encode(tempDate, "UTF-8")); /*현재 날짜*/
         urlBuilder.append("&" + URLEncoder.encode("base_time","UTF-8") + "=" + URLEncoder.encode(tempTime, "UTF-8")); /*06시 발표(정시단위)*/
-        urlBuilder.append("&" + URLEncoder.encode("nx","UTF-8") + "=" + URLEncoder.encode(nx, "UTF-8")); /*용인시 기흥구*/
-        urlBuilder.append("&" + URLEncoder.encode("ny","UTF-8") + "=" + URLEncoder.encode(ny, "UTF-8")); /*용인시 기흥구*/
+        urlBuilder.append("&" + URLEncoder.encode("nx","UTF-8") + "=" + URLEncoder.encode(nx, "UTF-8"));
+        urlBuilder.append("&" + URLEncoder.encode("ny","UTF-8") + "=" + URLEncoder.encode(ny, "UTF-8"));
 
+/*
+        Get 방식으로 전송하여 파라미터 받아 오자!
+*/
         URL url = new URL(urlBuilder.toString());
-        System.out.println(url);
-
+        System.out.println(url); //url 주소
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
         conn.setRequestProperty("Content-type", "application/json");
@@ -76,6 +80,9 @@ public class WeatherService {
         String result = sb.toString();
         System.out.println(sb.toString());
 
+/*
+        JSON 파일 파싱 작업
+*/
         JSONParser jsonParser = new JSONParser();
         JSONObject jsonObj = (JSONObject) jsonParser.parse(result);
         JSONObject parse_response = (JSONObject) jsonObj.get("response"); //response 키를 가지고 데이터 파싱
@@ -83,17 +90,17 @@ public class WeatherService {
         JSONObject parse_items = (JSONObject) parse_body.get("items");// body 로부터 items 찾기
         JSONArray parse_item = (JSONArray) parse_items.get("item");//items 로부터 item 배열 받아오기
 
-
-        List<Weather> weatherList = new ArrayList<>();
-
         String category; // 기준 날짜와 기준시간을 VillageWeather 객체에 저장합니다.
         String dateTemp = "";
         String timeTemp = "";
         String popTemp = "";
         String skyTemp = "";
         String t3hTemp = "";
-        JSONObject item;
+        String tmnTemp = "100"; //아침 최저기온
+        String tmxTemp = "-100"; //낮 최고기온
 
+        JSONObject item;
+        List<Weather> weatherList = new ArrayList<>();
         for (int i = 0; i < parse_item.size(); i++) {
             item = (JSONObject) parse_item.get(i);
 
@@ -102,7 +109,8 @@ public class WeatherService {
             String fcstTime = (String) item.get("fcstTime"); //측정 시간
             String fcstValue = (String) item.get("fcstValue"); //item 값
 
-/*            if (!dateTemp.equals(fcstDate)) {
+            //오늘 날씨만 출력하자 //내일로 넘어가면 break
+            if (!dateTemp.equals(fcstDate.toString())) {
                 if (!dateTemp.equals("")) {
                     Weather weatherTemp = new Weather();
                     weatherTemp.setDate(dateTemp);
@@ -110,11 +118,14 @@ public class WeatherService {
                     weatherTemp.setPop(popTemp);
                     weatherTemp.setSky(skyTemp);
                     weatherTemp.setT3h(t3hTemp);
+                    weatherTemp.setTmn(tmnTemp);
+                    weatherTemp.setTmx(tmxTemp);
                     weatherList.add(weatherTemp);
+                    break;
                 }
-                dateTemp = fcstDate;
-                timeTemp = fcstTime;
-            }*/
+            }
+
+            //시간 바뀔 때마다 배열에 저장
             if (!timeTemp.equals(fcstTime)) {
                 if (!timeTemp.equals("")) {
                     Weather weatherTemp = new Weather();
@@ -123,6 +134,8 @@ public class WeatherService {
                     weatherTemp.setPop(popTemp);
                     weatherTemp.setSky(skyTemp);
                     weatherTemp.setT3h(t3hTemp);
+                    weatherTemp.setTmn(tmnTemp);
+                    weatherTemp.setTmx(tmxTemp);
                     weatherList.add(weatherTemp);
                 }
                 dateTemp = fcstDate;
@@ -130,26 +143,36 @@ public class WeatherService {
             }
 
             switch (category) {
-                case "POP":
+                case "POP": //강수 확률
                     popTemp = fcstValue + "%";
                     break;
-                case "SKY":
+                case "SKY": //하늘 상태
                     int code = Integer.parseInt(fcstValue);
-                    if (code == 1){
+                    if (code == 1) {
                         skyTemp = "맑음";
-                    } else if (code == 3){
+                    } else if (code == 3) {
                         skyTemp = "구름많음";
-                    } else if (code == 4){
+                    } else if (code == 4) {
                         skyTemp = "흐림";
                     }
                     break;
-                case "T3H":
+                case "T3H": //기온
                     t3hTemp = fcstValue + "°C";
+                    break;
+                case "TMN": //최저기온
+                    if (Float.parseFloat(fcstValue) < Float.parseFloat(tmnTemp)) {
+                        tmnTemp = fcstValue;
+                    }
+                    break;
+                case "TMX": //최고기온
+                    if (Float.parseFloat(fcstValue) > Float.parseFloat(tmxTemp)) {
+                        tmxTemp = fcstValue;
+                    }
+                    break;
             }
-
         }
+        return weatherList;
 
-        return weatherList;// 모든값이 저장된 VillageWeather객체를 반환합니다.
     }
 
 }

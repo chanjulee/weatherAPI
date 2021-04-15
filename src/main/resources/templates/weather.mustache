@@ -1,0 +1,35 @@
+{{>layout/header}}
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <br>
+            <h2>🌞날씨 API☂</h2>
+            <br>
+            <h6>{{city}}의 오늘"{{date}}"의 날씨를 조회합니다.</h6>
+            <p>최고기온 : <b class="text-danger">{{max}}°C</b>
+                최저기온 : <b class="text-primary">{{min}}°C</b></p>
+            <!-- 목록 출력 영역 -->
+            <table class="table table-horizontal table-bordered">
+                <thead class="thead-strong">
+                <tr>
+                    <th>시간</th>
+                    <th>강수확률</th>
+                    <th>하늘상태</th>
+                    <th>기온</th>
+                </tr>
+                </thead>
+                <tbody id="tbody">
+                {{#weathers}}
+                    <tr>
+                        <td>{{time}}</td>
+                        <td>{{pop}}</td>
+                        <td>{{sky}}</td>
+                        <td>{{t3h}}</td>
+                    </tr>
+                {{/weathers}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{{>layout/footer}}
